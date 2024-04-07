@@ -1,0 +1,82 @@
+Rest countries and Wheather using fetchAPI
+
+Index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Country Information</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <!-- Bootstrap columns -->
+      <div class="col-lg-4 col-sm-12">
+        <!-- Bootstrap card -->
+        <div class="card">
+          <div class="card-header">Country 1</div>
+          <div class="card-body">
+            <!-- Display country information here -->
+            <button class="btn btn-primary">Get Weather</button>
+          </div>
+        </div>
+      </div>
+      <!-- Add more columns for additional countries -->
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
+
+script.js
+document.addEventListener("DOMContentLoaded", function() {
+  const countries = ["USA", "Canada", "Australia"]; // Add more countries as needed
+
+  countries.forEach(country => {
+    fetch(`https://restcountries.com/v3.1/name/${country}`)
+      .then(response => response.json())
+      .then(data => {
+        const countryData = data[0];
+        const card = createCard(countryData);
+        document.querySelector(".row").appendChild(card);
+        const button = card.querySelector("button");
+        button.addEventListener("click", function() {
+          getWeather(countryData.capital[0]);
+        });
+      })
+      .catch(error => console.error("Error fetching country data:", error));
+  });
+});
+
+function createCard(countryData) {
+  const card = document.createElement("div");
+  card.classList.add("col-lg-4", "col-sm-12");
+  card.innerHTML = `
+    <div class="card">
+      <div class="card-header">${countryData.name.common}</div>
+      <div class="card-body">
+        <p><strong>Capital:</strong> ${countryData.capital[0]}</p>
+        <p><strong>Region:</strong> ${countryData.region}</p>
+        <p><strong>Latlng:</strong> ${countryData.latlng}</p>
+        <p><strong>Flag:</strong> <img src="${countryData.flags.png}" alt="Flag" style="width: 50px;"></p>
+        <p><strong>Country Codes:</strong> ${Object.keys(countryData.cca2)}</p>
+        <button class="btn btn-primary">Get Weather</button>
+      </div>
+    </div>
+  `;
+  return card;
+}
+
+function getWeather(city) {
+  fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=YOUR_API_KEY`)
+    .then(response => response.json())
+    .then(data => {
+      console.log("Weather data:", data);
+      // Display weather data as needed
+    })
+    .catch(error => console.error("Error fetching weather data:", error));
+}
